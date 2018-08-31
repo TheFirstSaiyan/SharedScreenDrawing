@@ -1,3 +1,1 @@
- tick : pair people to start playing
-
-2 v 2
+//socket.broadcast.emit('positionData',data);   //b4 when i planned to send to all machines/clients

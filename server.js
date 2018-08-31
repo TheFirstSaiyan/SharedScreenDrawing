@@ -5,8 +5,16 @@ const http=require('http');
 const fs=require('fs');
 const express=require('express');
 const socket =require('socket.io');
+const request=require('request');
+//one random word http://www.desiquintans.com/noungenerator?count=1
+//text file : http://www.desiquintans.com/downloads/nounlist/nounlist.txt
+// request("http://www.desiquintans.com/noungenerator?count=1",function(error,response,body){
+//
+//   console.log(body);
+// });
 
 let clientList=[];
+let turns={};
 let paired={};
 let pairs={};
 let app=express();
@@ -37,6 +45,11 @@ function hookUp(socket,socketId)
         pairs[id]=socketId;
         madeUp=true;
         console.log( "[+] HOOK UP SUCCESSFUL : " +socketId +" hooked up with " + id);
+
+        //at first set turns randomly
+        turns[socketId]="draw";
+        turns[pairs[socketId]]="guess";
+
         //clear your screen when u have been connected to  a new player
         socket.broadcast.to(pairs[socketId]).emit('clearInstruction','clear your screen dood');
         socket.broadcast.to(socketId).emit('clearInstruction','clear your screen dood');
@@ -63,18 +76,14 @@ function newConnection(socket)
 
     hookUp(socket,socket.id);
 
-
+console.log(socket.id + turns[socket.id]);
 
   //receive location data from one client
   socket.on('positionData',getData);
-
+  socket.on('guess',checkGuess);
 
   function getData(data)
   {
-
-
-//    //socket.broadcast.emit('positionData',data);   //b4 when i planned to send to all machines/clients
-
     // send location data to a selected client only using my hookup mechanism
 
     if(pairs[socket.id]!=undefined)
@@ -82,8 +91,18 @@ function newConnection(socket)
       socket.broadcast.to(pairs[socket.id]).emit('positionData',data);
     }
     else
-      console.log("waiting for a hookup. No other players found online :(");
+      console.log("[-] waiting for a hookup. No other players found online :(");
   }
+
+  function checkGuess(guess)
+  {
+    console.log(guess);
+    //check if the guess is the right word or is a related word
+    //and keep changing turns :)
+    console.log(socket.id + turns[socket.id]);
+
+  }
+
 
   // detect a leaving client
     socket.on('disconnect',function (){
@@ -93,6 +112,8 @@ function newConnection(socket)
     pairs[pairs[socket.id]]=undefined;
     pair=pairs[socket.id];
     pairs[socket.id]=undefined;
+    turns[socket.id]=undefined;
+    turns[pair]=undefined;
     hookUp(socket,pair)
     clientList.splice(indexToRemove,1);
     remainingClients();
