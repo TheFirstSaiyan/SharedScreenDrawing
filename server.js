@@ -62,7 +62,8 @@ function hookUp(socket, socketId) {
         //choose a random word from list
         correct = words[Math.ceil(Math.random() * (words.length - 2))].replace(
           ' ', '');
-        console.log(socketId + "hello");
+        correct = String(correct);
+        correct = correct.slice(0, correct.length - 1)
 
         //clear your screen when u have been connected to  a new player
 
@@ -151,10 +152,10 @@ function newConnection(socket) {
   }
 
   function checkGuess(guess) {
-    console.log(guess);
-    let chosenWord = "hari";
+    console.log(correct);
     //check if the guess is correct !
-    if (guess == correct && turns[socket.id] == "guess") {
+    if (guess.replace(" ", "") == correct.replace(" ", "") && turns[socket.id] ==
+      "guess") {
       console.log("correct");
     }
     //check if the guess is the right word or is a related word
