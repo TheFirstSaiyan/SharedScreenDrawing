@@ -1,0 +1,15 @@
+cat
+dog
+house
+plant
+moon
+sun
+dinosaur
+bomb
+bat
+computer
+mouse
+doll
+universe
+bottle
+table

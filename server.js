@@ -27,7 +27,7 @@ let server = app.listen(6677);
 let io = socket(server);
 
 //read the file containing the words
-let content = fs.readFileSync("nouns.txt", 'utf8');
+let content = fs.readFileSync("easy.txt", 'utf8');
 
 
 words = content.toString().split('\n');
@@ -63,7 +63,7 @@ function hookUp(socket, socketId) {
         correct = words[Math.ceil(Math.random() * (words.length - 2))].replace(
           ' ', '');
         correct = String(correct);
-        correct = correct.slice(0, correct.length - 1)
+        correct = correct.slice(0, correct.length - 1);
 
         //clear your screen when u have been connected to  a new player
 
@@ -74,22 +74,23 @@ function hookUp(socket, socketId) {
         socket.emit('clearInstruction',
           'clear your screen dood');
 
-        socket.broadcast.to(pairs[socketId]).emit('guesser', turns[pairs[
-          socketId]]);
-        socket.emit('drawer', "draw");
+        //  socket.broadcast.to(pairs[socketId]).emit('guesser', turns[pairs[
+        //    socketId]]);
+        //  socket.emit('drawer', "draw");
         let flag = 0;
-        let ok = socket.emit("wordToDraw", [turns[socketId], correct], success);
+        let ok = socket.emit("wordToDraw", [turns[socketId], correct + "(draw)"],
+          success);
         //checking if its not the same client
         function success(data) {
           flag = 1;
         }
         if (flag === 0) {
-          socket.broadcast.to(socketId).emit('drawer',
-            "draw");
+          //  socket.broadcast.to(socketId).emit('drawer',
+          //    "draw");
           socket.broadcast.to(socketId).emit('clearInstruction',
             'clear your screen dood');
           socket.broadcast.to(socketId).emit("wordToDraw", [turns[
-            socketId], correct]);
+            socketId], correct + "(draw)"]);
         }
         socket.broadcast.to(pairs[socketId]).emit("wordToDraw", [turns[pairs[
           socketId]], "your turn to guess"]);
@@ -153,10 +154,33 @@ function newConnection(socket) {
 
   function checkGuess(guess) {
     console.log(correct);
-    //check if the guess is correct !
+    //check if the guess is correct ! change the word randomly change the turns and increase score
     if (guess.replace(" ", "") == correct.replace(" ", "") && turns[socket.id] ==
       "guess") {
       console.log("correct");
+      turns[socket.id] = "draw";
+      turns[pairs[socket.id]] = "guess";
+      correct = words[Math.ceil(Math.random() * (words.length - 2))].replace(
+        ' ', '');
+      correct = String(correct);
+      correct = correct.slice(0, correct.length - 1);
+
+
+      // socket.emit(socket.id).emit('drawer',
+      //   "draw");
+      // socket.broadcast.to(pairs[socket.id]).emit('guesser',
+      //   "guess");
+      socket.emit(socket.id).emit('clearInstruction',
+        'clear your screen dood');
+      socket.emit("wordToDraw", [turns[socket.id], correct + "(draw)"]);
+
+      socket.broadcast.to(pairs[socket.id]).emit('clearInstruction',
+        'clear your screen dood');
+
+
+      socket.broadcast.to(pairs[socket.id]).emit("wordToDraw", [turns[pairs[
+        socket.id]], "your turn to guess"]);
+
     }
     //check if the guess is the right word or is a related word
     //and keep changing turns :)

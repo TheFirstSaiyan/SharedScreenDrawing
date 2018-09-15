@@ -8,20 +8,20 @@ function setup() {
 	clientSocket = io.connect('http://localhost:6677');
 	//receive loaction data from any other client connected to the server
 	textRegion = createInput();
+	scoreRegion = createInput();
 	textRegion.position(125, 425);
 	//	clientSocket.on('guesser', guesserFunction);
-	alertBox = createInput();
 	//	clientSocket.on('role', roleFunction);
 
 	clientSocket.on('clearInstruction', screenClear);
 
 	clientSocket.on('positionData', replicate);
-	clientSocket.on('drawer', drawer);
-	clientSocket.on('guesser', guesser);
-	clientSocket.on('wordToDraw', showWhatToDraw)
-		//clientSocket.on('wordToDraw', drawWord);
-		//clientSocket.on('wordToDraw', well);
-		//clientSocket.on("showText", showText);
+	//	clientSocket.on('drawer', drawer);
+	//clientSocket.on('guesser', guesser);
+	clientSocket.on('wordToDraw', showWhatToDraw);
+	//clientSocket.on('wordToDraw', drawWord);
+	//clientSocket.on('wordToDraw', well);
+	//clientSocket.on("showText", showText);
 
 }
 
