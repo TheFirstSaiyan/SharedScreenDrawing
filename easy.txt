@@ -13,3 +13,17 @@ doll
 universe
 bottle
 table
+axe
+knife
+football
+earth
+violin
+guitar
+veena
+saxophone
+road
+rain
+bell
+black-board
+parrot
+eagle

@@ -66,7 +66,6 @@ function hookUp(socket, socketId) {
         correct = correct.slice(0, correct.length - 1);
 
         //clear your screen when u have been connected to  a new player
-
         socket.broadcast.to(pairs[socketId]).emit('clearInstruction',
           'clear your screen dood');
 
@@ -74,12 +73,14 @@ function hookUp(socket, socketId) {
         socket.emit('clearInstruction',
           'clear your screen dood');
 
-        //  socket.broadcast.to(pairs[socketId]).emit('guesser', turns[pairs[
-        //    socketId]]);
-        //  socket.emit('drawer', "draw");
         let flag = 0;
+        let timerFlag = 0;
         let ok = socket.emit("wordToDraw", [turns[socketId], correct + "(draw)"],
           success);
+
+        function timerMessageSuccess() {
+          timerFlag = 1;
+        }
         //checking if its not the same client
         function success(data) {
           flag = 1;
@@ -87,21 +88,33 @@ function hookUp(socket, socketId) {
         if (flag === 0) {
           //  socket.broadcast.to(socketId).emit('drawer',
           //    "draw");
+
           socket.broadcast.to(socketId).emit('clearInstruction',
             'clear your screen dood');
           socket.broadcast.to(socketId).emit("wordToDraw", [turns[
             socketId], correct + "(draw)"]);
         }
+
         socket.broadcast.to(pairs[socketId]).emit("wordToDraw", [turns[pairs[
           socketId]], "your turn to guess"]);
-
+        socket.emit("startTimer", "well", timerMessageSuccess);
+        if (timerFlag == 0) {
+          socket.broadcast.to(socketId).emit("startTimer",
+            "well hello");
+        }
+        socket.broadcast.to(pairs[socketId]).emit("startTimer",
+          "well...");
 
       }
-
     }
   }
-  if (madeUp == false)
+  if (madeUp == false) {
     console.log("[-] waiting for a hookup. No other players found online :(");
+
+    socket.broadcast.to(socketId).emit('clearInstruction',
+      'clear your screen dood');
+    socket.emit('clearInstruction', 'clear your screen dood');
+  }
 
 
 }
@@ -109,6 +122,8 @@ function hookUp(socket, socketId) {
 
 
 function newConnection(socket) {
+  //  socket.emit('clearTimer',
+  //    'time starts now');
   let pair;
   clientList.push(socket.id); //keep  track of all the clients currently connected to the server
   paired[socket.id] = false;
@@ -137,16 +152,12 @@ function newConnection(socket) {
   //receive location data from one client
   socket.on('positionData', getData);
   socket.on('guess', checkGuess);
-  //  socket.on('WhatIsMyRole', checkRole);
 
-  function checkRole(data) {
-    socket.broadcast.to(socket.id).emit('role', turns[socket.id].toString());
-  }
 
   function getData(data) {
     // send location data to a selected client only using my hookup mechanism
 
-    if (pairs[socket.id] != undefined) {
+    if (pairs[socket.id] != undefined && turns[socket.id] == "draw") {
       socket.broadcast.to(pairs[socket.id]).emit('positionData', data);
     } else
       console.log("[-] waiting for a hookup. No other players found online :(");
@@ -196,6 +207,8 @@ function newConnection(socket) {
     paired[pairs[socket.id]] = false;
     pairs[pairs[socket.id]] = undefined;
     pair = pairs[socket.id];
+    socket.broadcast.to(pair).emit('clearTimer',
+      'time starts now');
     pairs[socket.id] = undefined;
     turns[socket.id] = undefined;
     turns[pair] = undefined;
