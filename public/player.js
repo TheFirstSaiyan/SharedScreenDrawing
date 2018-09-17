@@ -9,19 +9,18 @@ let role;
 
 
 function setup() {
-	let canvas = createCanvas(600, 600);
-	canvas.position(460, 80);
+	let canvas = createCanvas(300, 300);
+	canvas.position(300, 40);
 	background(0);
-	document.body.style.zoom = "100%"
 
 	clientSocket = io.connect('http://localhost:6677');
 	//receive loaction data from any other client connected to the server
 	textRegion = createInput();
-	textRegion.position(670, 570);
+	textRegion.position(370, 300);
 	timerText = select("#timer");
 	timerText.size(1000);
-	timerText.position(460, 25);
-	timerText.html(" ************** WELCOME PLAYER **************** ")
+	timerText.position(300, -15);
+	timerText.html(" ***** WELCOME PLAYER **** ")
 		//	clientSocket.on('guesser', guesserFunction);
 		//	clientSocket.on('role', roleFunction);
 
@@ -70,9 +69,9 @@ function timer() {
 		timerText.html("Times up :)");
 		clearInterval(intervalFunction);
 	} else {
-		timerText.html("****************** TIMER :- " + " " + minText + " : " +
+		timerText.html("****** TIMER :- " + " " + minText + " : " +
 			secText +
-			" *****************");
+			" *******");
 	}
 }
 
@@ -82,8 +81,8 @@ function showWhatToDraw(values) {
 	strokeWeight(5);
 	textAlign(CENTER);
 	stroke(255);
-	textSize(32);
-	text(values[1], 300, 50);
+	textSize(18);
+	text(values[1], 150, 30);
 	textSize(50);
 	role = values[0];
 
@@ -109,7 +108,7 @@ function drawWord(data) {
 }
 
 function replicate(data) {
-	strokeWeight(10);
+	strokeWeight(6);
 	stroke(50, 0, 100);
 	line(data.px, data.py, data.x, data.y);
 }
@@ -129,7 +128,7 @@ function mouseReleased() {
 
 
 function mouseDragged() {
-	strokeWeight(10);
+	strokeWeight(6);
 	stroke(255);
 	if (mouseIsPressed) {
 		line(pmouseX, pmouseY, mouseX, mouseY);
@@ -155,6 +154,29 @@ function keyPressed() {
 function draw() {
 
 
+}
+window.addEventListener("load", callCorrection);
+
+function callCorrection(event) {
+	document.body.style.zoom = "100%";
+
+	document.body.addEventListener("wheel", zoomShortcut); //add the event
+	event.preventDefault();
+
+}
+
+function zoomShortcut(e) {
+	if (e.ctrlKey) { //[ctrl] pressed?
+		event.preventDefault(); //prevent zoom
+		if (e.deltaY < 0) { //scrolling up?
+			//do something..
+			return false;
+		}
+		if (e.deltaY > 0) { //scrolling down?
+			//do something..
+			return false;
+		}
+	}
 }
 
 window.addEventListener("beforeunload", function(event) {
