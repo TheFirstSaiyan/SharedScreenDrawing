@@ -5,19 +5,22 @@ let min = 0;
 let intervalFunction;
 let timerText;
 let minText, secText;
+let role;
 
 
 function setup() {
-	createCanvas(400, 400);
+	let canvas = createCanvas(600, 600);
+	canvas.position(460, 80);
 	background(0);
-	document.body.style.zoom = "90%"
+	document.body.style.zoom = "100%"
 
 	clientSocket = io.connect('http://localhost:6677');
 	//receive loaction data from any other client connected to the server
 	textRegion = createInput();
-	textRegion.position(125, 425);
+	textRegion.position(670, 570);
 	timerText = select("#timer");
-	timerText.size(600);
+	timerText.size(1000);
+	timerText.position(460, 25);
 	timerText.html(" ************** WELCOME PLAYER **************** ")
 		//	clientSocket.on('guesser', guesserFunction);
 		//	clientSocket.on('role', roleFunction);
@@ -80,8 +83,9 @@ function showWhatToDraw(values) {
 	textAlign(CENTER);
 	stroke(255);
 	textSize(32);
-	text(values[1], 180, 50);
+	text(values[1], 300, 50);
 	textSize(50);
+	role = values[0];
 
 
 

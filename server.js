@@ -160,7 +160,7 @@ function newConnection(socket) {
     if (pairs[socket.id] != undefined && turns[socket.id] == "draw") {
       socket.broadcast.to(pairs[socket.id]).emit('positionData', data);
     } else
-      console.log("[-] waiting for a hookup. No other players found online :(");
+      console.log("your are guesser you cannot draw");
   }
 
   function checkGuess(guess) {
