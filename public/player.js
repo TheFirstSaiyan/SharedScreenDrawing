@@ -133,9 +133,13 @@ function showWhatToDraw(values) {
 }
 
 function replicate(data) {
-	strokeWeight(6);
-	stroke(50, 0, 100);
-	line(data.px, data.py, data.x, data.y);
+	if(timerText.html()!="Times up :)")
+	{
+		strokeWeight(6);
+		stroke(50, 0, 100);
+		line(data.px, data.py, data.x, data.y);	
+	}
+
 }
 
 function screenClear(data)
