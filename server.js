@@ -25,6 +25,7 @@ let server = app.listen(6677);
 let io = socket(server);
 let scores=[];
 
+
 // var scores = JSON.parse(localStorage.getItem("scoreList"));
 
 //read the file containing the words
@@ -157,6 +158,11 @@ function newConnection(socket) {
   socket.on('positionData', getData);
   socket.on('guess', checkGuess);
   socket.on('checkRank',checkRank);
+// //  socket.on('replay',replay);
+//   function replay(data)
+//   {
+//     hookUp(socket,socket.id);
+//   }
 
   function checkRank(score)
   {
@@ -181,6 +187,14 @@ function newConnection(socket) {
     socket.emit('rankInfo',rank);
     //socket.emit.to()
     socket.broadcast.to(pairs[socket.id]).emit('rankInfo',rank);
+     paired[pairs[socket.id]] = "occupied on replay";
+     paired[socket.id]="occupied on replay";
+    //
+    // turns[pairs[scoket.id]]=undefined;
+    // turns[socket.id]=undefined;
+    //
+    // pairs[pairs[socket.id]] = undefined;
+    // pairs[scoket.id]=undefined;
 
   }
 
@@ -235,6 +249,8 @@ function newConnection(socket) {
   socket.on('disconnect', function() {
     console.log("[-] client disconnected with id :" + socket.id);
     let indexToRemove = clientList.indexOf(socket.id);
+    if(paired[pairs[socket.id]]!="occupied on replay")
+    {
     paired[pairs[socket.id]] = false;
     pairs[pairs[socket.id]] = undefined;
     pair = pairs[socket.id];
@@ -246,6 +262,7 @@ function newConnection(socket) {
     hookUp(socket, pair)
     clientList.splice(indexToRemove, 1);
     remainingClients();
+  }
   });
 
 }

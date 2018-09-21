@@ -8,10 +8,11 @@ let scoreText;
 let rankText;
 let minText, secText;
 let role;
-let score=0;
+let score;
 
 
 function setup() {
+	score=0;
 	let canvas = createCanvas(300, 300);
 	canvas.position(300, 40);
 	background(0);
@@ -91,15 +92,31 @@ function timer() {
 	else
 		secText = sec;
 
-	if (minText == "00" && (secText == "30" || secText == "31")) {
+	if (minText == "00" && (secText == "10" || secText == "11")) {
 		timerText.html("Times up :)");
 		clearInterval(intervalFunction);
 		clientSocket.emit('checkRank',score);
+		button = createButton('replay');
+	  button.position(425,350);
+	  button.mousePressed(replay);
 	} else {
 		timerText.html("****** TIMER :- " + " " + minText + " : " +
 			secText +
 			" *******");
 	}
+}
+
+function replay()
+{
+
+document.location.reload(true);
+	// screenClear("from replay");
+	// timerText.html(" ***** WELCOME PLAYER **** ");
+	// score=0;
+	// sec=0;
+	// min=0;
+	// clientSocket.on("replay","replay");
+
 }
 
 function showWhatToDraw(values) {
@@ -123,6 +140,7 @@ function replicate(data) {
 
 function screenClear(data)
 {
+	rankText.html("");
 	background(0);
 	console.log("cleared screen" + data);
 	textRegion.value("");
@@ -154,7 +172,7 @@ function mouseDragged()
 }
 
 function keyPressed() {
-	if (keyCode == ENTER) {
+	if (keyCode == ENTER && timerText.html()!="Times up :)") {
 		console.log(textRegion.value());
 		clientSocket.emit('guess', textRegion.value());
 
