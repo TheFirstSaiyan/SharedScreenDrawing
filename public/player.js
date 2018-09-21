@@ -4,8 +4,11 @@ let sec = 0;
 let min = 0;
 let intervalFunction;
 let timerText;
+let scoreText;
+let rankText;
 let minText, secText;
 let role;
+let score=0;
 
 
 function setup() {
@@ -14,23 +17,46 @@ function setup() {
 	background(0);
 
 	clientSocket = io.connect('http://localhost:6677');
-	//receive loaction data from any other client connected to the server
+
 	textRegion = createInput();
 	textRegion.position(370, 300);
+
 	timerText = select("#timer");
 	timerText.size(1000);
 	timerText.position(300, -15);
-	timerText.html(" ***** WELCOME PLAYER **** ")
-		//	clientSocket.on('guesser', guesserFunction);
-		//	clientSocket.on('role', roleFunction);
+	timerText.html(" ***** WELCOME PLAYER **** ");
 
+	scoreText= select("#score");
+	scoreText.size(200);
+	scoreText.position(170,-14);
+	scoreText.html("SCORE : 0");
+
+	rankText=select("#rank");
+	rankText.size(200);
+	rankText.position(170,5);
+
+	//receiving messages from server
 	clientSocket.on('clearInstruction', screenClear);
 	clientSocket.on('wordToDraw', showWhatToDraw);
+	//receive loaction data from any other client connected to the server
 
 	clientSocket.on('positionData', replicate);
 	clientSocket.on("startTimer", startTimer);
 	clientSocket.on("clearTimer", clearTimer);
+	clientSocket.on("increaseScore",increaseScore);
+	clientSocket.on("rankInfo",displayRank);
 
+}
+function displayRank(rank)
+{
+	console.log("score " +rank);
+	rankText.html("RANK : "+rank);
+}
+function increaseScore(data)
+{
+	score++;
+	console.log(score);
+	scoreText.html("SCORE : "+score);
 }
 
 function startTimer(data) {
@@ -65,17 +91,16 @@ function timer() {
 	else
 		secText = sec;
 
-	if (minText == "01" && (secText == "00" || secText == "01")) {
+	if (minText == "00" && (secText == "30" || secText == "31")) {
 		timerText.html("Times up :)");
 		clearInterval(intervalFunction);
+		clientSocket.emit('checkRank',score);
 	} else {
 		timerText.html("****** TIMER :- " + " " + minText + " : " +
 			secText +
 			" *******");
 	}
 }
-
-
 
 function showWhatToDraw(values) {
 	strokeWeight(5);
@@ -90,30 +115,14 @@ function showWhatToDraw(values) {
 
 }
 
-function drawer(data) {
-
-	alertBox.value(data);
-
-}
-
-function guesser(data) {
-	alertBox.value(data);
-}
-
-
-
-function drawWord(data) {
-	console.log("draw" + data);
-	background(0);
-}
-
 function replicate(data) {
 	strokeWeight(6);
 	stroke(50, 0, 100);
 	line(data.px, data.py, data.x, data.y);
 }
 
-function screenClear(data) {
+function screenClear(data)
+{
 	background(0);
 	console.log("cleared screen" + data);
 	textRegion.value("");
@@ -122,12 +131,13 @@ function screenClear(data) {
 
 }
 
-function mouseReleased() {
+function mouseReleased()
+{
 	locations = [];
 }
 
-
-function mouseDragged() {
+function mouseDragged()
+ {
 	strokeWeight(6);
 	stroke(255);
 	if (mouseIsPressed) {

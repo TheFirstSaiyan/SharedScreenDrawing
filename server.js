@@ -7,16 +7,14 @@ const http = require('http');
 const socket = require('socket.io');
 const request = require('request');
 
-
-let app = express();
-
-
 //one random word http://www.desiquintans.com/noungenerator?count=1
 //text file : http://www.desiquintans.com/downloads/nounlist/nounlist.txt
 // request("http://www.desiquintans.com/noungenerator?count=1",function(error,response,body){
 //
 //   console.log(body);
 // });
+let app = express();
+
 let correct = "";
 let words = [];
 let clientList = [];
@@ -25,9 +23,15 @@ let paired = {};
 let pairs = {};
 let server = app.listen(6677);
 let io = socket(server);
+let scores=[];
+
+// var scores = JSON.parse(localStorage.getItem("scoreList"));
 
 //read the file containing the words
 let content = fs.readFileSync("easy.txt", 'utf8');
+
+let scoreContent=fs.readFileSync("scores.txt",'utf8');
+scores=scoreContent.split('\n');
 
 
 words = content.toString().split('\n');
@@ -152,6 +156,33 @@ function newConnection(socket) {
   //receive location data from one client
   socket.on('positionData', getData);
   socket.on('guess', checkGuess);
+  socket.on('checkRank',checkRank);
+
+  function checkRank(score)
+  {
+    let rank=0;
+    if(scores.includes(score))
+    {
+      //return rank if score already present
+    }
+    else{
+      scores.push(score);
+      //scores.slice(0,1);
+      scores.sort();
+    //  let writeStream = fs.createWriteStream("scores.txt");
+      fs.appendFileSync("scores.txt",score+"\n");
+    //  writeStream.write("Thank You.");
+//writeStream.end();
+      //add the score and return rank
+
+   }
+    // rank=scores.indexOf(score)+1;
+    rank=scores.length-scores.indexOf(score);
+    socket.emit('rankInfo',rank);
+    //socket.emit.to()
+    socket.broadcast.to(pairs[socket.id]).emit('rankInfo',rank);
+
+  }
 
 
   function getData(data) {
@@ -177,17 +208,17 @@ function newConnection(socket) {
       correct = correct.slice(0, correct.length - 1);
 
 
-      // socket.emit(socket.id).emit('drawer',
-      //   "draw");
-      // socket.broadcast.to(pairs[socket.id]).emit('guesser',
-      //   "guess");
-      socket.emit(socket.id).emit('clearInstruction',
+      //increase score
+      socket.emit('increaseScore','good job');
+      socket.broadcast.to(pairs[socket.id]).emit('increaseScore','good job');
+      //clear screen
+      socket.emit('clearInstruction',
         'clear your screen dood');
-      socket.emit("wordToDraw", [turns[socket.id], correct + "(draw)"]);
 
       socket.broadcast.to(pairs[socket.id]).emit('clearInstruction',
         'clear your screen dood');
-
+        //send information about roles
+      socket.emit("wordToDraw", [turns[socket.id], correct + "(draw)"]);
 
       socket.broadcast.to(pairs[socket.id]).emit("wordToDraw", [turns[pairs[
         socket.id]], "your turn to guess"]);
