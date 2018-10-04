@@ -92,7 +92,7 @@ function timer() {
 	else
 		secText = sec;
 
-	if (minText == "00" && (secText == "10" || secText == "11")) {
+	if (minText == "01" && (secText == "30" || secText == "31")) {
 		timerText.html("Times up :)");
 		clearInterval(intervalFunction);
 		clientSocket.emit('checkRank',score);
@@ -137,7 +137,7 @@ function replicate(data) {
 	{
 		strokeWeight(6);
 		stroke(50, 0, 100);
-		line(data.px, data.py, data.x, data.y);	
+		line(data.px, data.py, data.x, data.y);
 	}
 
 }
