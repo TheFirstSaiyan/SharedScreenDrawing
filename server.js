@@ -14,6 +14,7 @@ const request = require('request');
 //   console.log(body);
 // });
 let app = express();
+let corrects={};
 
 let correct = "";
 let words = [];
@@ -69,7 +70,8 @@ function hookUp(socket, socketId) {
           ' ', '');
         correct = String(correct);
         correct = correct.slice(0, correct.length - 1);
-
+        corrects[socketId]=correct;
+              corrects[pairs[socketId]]=correct;
         //clear your screen when u have been connected to  a new player
         socket.broadcast.to(pairs[socketId]).emit('clearInstruction',
           'clear your screen dood');
@@ -80,7 +82,7 @@ function hookUp(socket, socketId) {
 
         let flag = 0;
         let timerFlag = 0;
-        let ok = socket.emit("wordToDraw", [turns[socketId], correct + "(draw)"],
+        let ok = socket.emit("wordToDraw", [turns[socketId],corrects[socketId] + "(draw)"],
           success);
 
         function timerMessageSuccess() {
@@ -97,7 +99,7 @@ function hookUp(socket, socketId) {
           socket.broadcast.to(socketId).emit('clearInstruction',
             'clear your screen dood');
           socket.broadcast.to(socketId).emit("wordToDraw", [turns[
-            socketId], correct + "(draw)"]);
+            socketId], corrects[socketId] + "(draw)"]);
         }
 
         socket.broadcast.to(pairs[socketId]).emit("wordToDraw", [turns[pairs[
@@ -209,9 +211,9 @@ function newConnection(socket) {
   }
 
   function checkGuess(guess) {
-    console.log(correct);
+    console.log(corrects[socket.id] + guess);
     //check if the guess is correct ! change the word randomly change the turns and increase score
-    if (guess.replace(" ", "") == correct.replace(" ", "") && turns[socket.id] ==
+    if (guess.replace(" ", "") == corrects[socket.id].replace(" ", "") && turns[socket.id] ==
       "guess") {
       console.log("correct");
       turns[socket.id] = "draw";
@@ -220,6 +222,8 @@ function newConnection(socket) {
         ' ', '');
       correct = String(correct);
       correct = correct.slice(0, correct.length - 1);
+      corrects[socket.id]=correct;
+      corrects[pairs[socket.id]]=correct;
 
 
       //increase score
@@ -232,7 +236,7 @@ function newConnection(socket) {
       socket.broadcast.to(pairs[socket.id]).emit('clearInstruction',
         'clear your screen dood');
         //send information about roles
-      socket.emit("wordToDraw", [turns[socket.id], correct + "(draw)"]);
+      socket.emit("wordToDraw", [turns[socket.id], corrects[socket.id] + "(draw)"]);
 
       socket.broadcast.to(pairs[socket.id]).emit("wordToDraw", [turns[pairs[
         socket.id]], "your turn to guess"]);
@@ -249,6 +253,8 @@ function newConnection(socket) {
   socket.on('disconnect', function() {
     console.log("[-] client disconnected with id :" + socket.id);
     let indexToRemove = clientList.indexOf(socket.id);
+    corrects[socket.id]=undefined;
+    corrects[pairs[socket.id]]=undefined;
     if(paired[pairs[socket.id]]!="occupied on replay")
     {
     paired[pairs[socket.id]] = false;
